@@ -2,8 +2,8 @@ TOOL.Category = "Test"
 TOOL.Name = "Test Sphere"
 
 -- PD 控制器参数（可在此处调整）
-local Kp = 32.0 -- 比例增益
-local Kd = 1.0  -- 微分增益（增大可减少过冲和振荡）
+local Kp = 320.0 -- 比例增益
+local Kd = 100.0 -- 微分增益（增大可减少过冲和振荡）
 
 function TOOL:LeftClick(tr)
     local clickPos = tr.HitPos
@@ -16,12 +16,18 @@ function TOOL:LeftClick(tr)
 
         local physObj = self.sphere:GetPhysicsObject()
 
-        physObj:SetMass(1)
-        physObj:SetInertia(Vector(1, 1, 1))
+        local ragdoll = ents.Create("prop_ragdoll")
+        ragdoll:SetModel(self:GetOwner():GetModel())
+        ragdoll:Spawn()
+
+        for i = 0 to ragdoll:
+
+        physObj:SetMass(100)
+        physObj:SetInertia(Vector(100, 100, 100))
         physObj:EnableDrag(false)
 
         local _, angular = physObj:GetDamping()
-        physObj:SetDamping(0, angular) -- 不使用内置阻尼，由 PD 控制完全接管
+        physObj:SetDamping(0, 0)
 
         physObj:Wake()
     else
@@ -35,6 +41,8 @@ end
 
 function TOOL:Reload(tr)
     PrintTable(self.sphere:GetPhysicsObject():GetFrictionSnapshot())
+
+    print(self.sphere:GetPhysicsObject():IsPenetrating())
 end
 
 function TOOL:Think()
